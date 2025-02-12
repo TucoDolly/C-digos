@@ -1,0 +1,84 @@
+import java.util.ArrayList;
+import java.util.List;
+
+class Patio {
+    private int capacidadePilhas;
+    private List<List<String>> pilhas;
+    private int totalConteineres;
+
+    public Patio(int capacidadePilhas) {
+        this.capacidadePilhas = capacidadePilhas;
+        this.pilhas = new ArrayList<>();
+        this.totalConteineres = 0;
+        if (capacidadePilhas > 0) {
+            pilhas.add(new ArrayList<>());
+        }
+    }
+
+    public void incluiConteiner() {
+        if (totalConteineres < capacidadePilhas * 3) {
+            List<String> pilhaAtual = pilhas.get(pilhas.size() - 1);
+            if (pilhaAtual.size() == 3) {
+                if (pilhas.size() < capacidadePilhas) {
+                    pilhaAtual = new ArrayList<>();
+                    pilhas.add(pilhaAtual);
+                } else {
+                    System.out.println("Capacidade máxima atingida!");
+                    return;
+                }
+            }
+            pilhaAtual.add("Contêiner");
+            totalConteineres++;
+        } else {
+            System.out.println("Sem espaço para mais contêineres!");
+        }
+    }
+
+    public void incluiConteiner(int quantidade) {
+        if (totalConteineres + quantidade > capacidadePilhas * 3) {
+            System.out.println("Não há espaço suficiente!");
+            return;
+        }
+        for (int i = 0; i < quantidade; i++) {
+            incluiConteiner();
+        }
+    }
+
+    public void retiraConteiner() {
+        if (totalConteineres > 0) {
+            List<String> pilhaAtual = pilhas.get(pilhas.size() - 1);
+            pilhaAtual.remove(pilhaAtual.size() - 1);
+            totalConteineres--;
+            if (pilhaAtual.isEmpty() && pilhas.size() > 1) {
+                pilhas.remove(pilhas.size() - 1);
+            }
+        } else {
+            System.out.println("Nenhum contêiner para retirar!");
+        }
+    }
+
+    public void mostrar() {
+        System.out.println("Pilhas no pátio: " + pilhas.size());
+        System.out.println("Total de contêineres armazenados: " + totalConteineres);
+    }
+
+    public void statusPatio() {
+        System.out.println("Capacidade total: " + (capacidadePilhas * 3));
+        System.out.println("Pilhas utilizadas: " + pilhas.size());
+        System.out.println("Contêineres armazenados: " + totalConteineres);
+        System.out.println("Espaços disponíveis: " + ((capacidadePilhas * 3) - totalConteineres));
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Patio patio = new Patio(3);
+        patio.incluiConteiner();
+        patio.incluiConteiner(5);
+        patio.mostrar();
+        patio.statusPatio();
+        patio.retiraConteiner();
+        patio.mostrar();
+        patio.statusPatio();
+    }
+}
