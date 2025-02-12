@@ -1,0 +1,70 @@
+Aqui estão as respostas para suas questões:  
+
+1) **(0,5 ponto)** Em POO as classes representam as **características** de um objeto, porém é necessário uma **instância** para de fato fazer uso da referida classe. O único caso onde métodos e atributos podem ser utilizados sem a **instância**, é quando estes são **estáticos**.  
+
+2) **(0,5 ponto)** Sim, é possível proteger os atributos de uma classe para que não sejam acessados diretamente de fora dela. Isso pode ser feito utilizando os modificadores de acesso:  
+   - **Privado (`private`)**: O atributo só pode ser acessado dentro da própria classe.  
+   - **Protegido (`protected`)**: O atributo pode ser acessado dentro da própria classe e por classes filhas (herança).  
+
+   Para manipular atributos protegidos, utilizamos **métodos getters e setters**, que permitem ler e modificar os valores dos atributos indiretamente. Exemplo:  
+
+   ```java
+   class Pessoa {
+       private String nome;
+
+       // Getter
+       public String getNome() {
+           return nome;
+       }
+
+       // Setter
+       public void setNome(String nome) {
+           this.nome = nome;
+       }
+   }
+   ```
+
+3) **(0,5 ponto)** Os pilares da Programação Orientada a Objetos são:  
+   a) **(X)** Herança  
+   b) **( )** Interfaces  
+   c) **(X)** Encapsulamento  
+   d) **(X)** Abstração  
+   e) **( )** Construtores  
+   f) **(X)** Polimorfismo  
+
+4) **(0,5 ponto)** Os modificadores de acesso definem o nível de visibilidade dos atributos e métodos de uma classe. São eles:  
+   - **`public`**: O atributo/método pode ser acessado de qualquer lugar.  
+   - **`private`**: O atributo/método só pode ser acessado dentro da própria classe.  
+   - **`protected`**: O atributo/método pode ser acessado dentro da classe e por classes derivadas.  
+   - **(Padrão ou `default`)**: Quando nenhum modificador é especificado, o acesso é permitido apenas dentro do mesmo pacote.  
+
+   **Exemplo de uso em Java:**  
+   ```java
+   class Animal {
+       protected String tipo = "Mamífero"; // Acessível por subclasses
+
+       private void som() {
+           System.out.println("Som do animal");
+       }
+
+       public void emitirSom() {
+           som(); // Método privado sendo acessado dentro da própria classe
+       }
+   }
+
+   class Cachorro extends Animal {
+       public void mostrarTipo() {
+           System.out.println("Tipo: " + tipo); // Permitido pois é protected
+       }
+   }
+
+   public class Main {
+       public static void main(String[] args) {
+           Cachorro c = new Cachorro();
+           c.mostrarTipo();
+           c.emitirSom();
+       }
+   }
+   ```
+
+Se precisar de mais esclarecimentos, é só chamar! 😊
