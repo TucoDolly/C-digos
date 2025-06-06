@@ -1,0 +1,86 @@
+-- =====================================================================
+--          SCRIPT POSTGRESQL PARA CALCULAR PREÇO DE COMBUSTÍVEL
+-- =====================================================================
+
+-- Pressione Ctrl+A para selecionar tudo e copie para seu cliente SQL.
+
+-- ---------------------------------------------------------------------
+-- PASSO 1: CRIAR A TABELA PARA ARMAZENAR O HISTÓRICO DE PREÇOS
+-- ---------------------------------------------------------------------
+-- Esta tabela guardará as informações sobre os preços dos combustíveis,
+-- incluindo o tipo, a data de início da vigência do preço e o valor.
+
+CREATE TABLE IF NOT EXISTS historico_precos_combustivel (
+    id SERIAL PRIMARY KEY,
+    tipo_combustivel VARCHAR(50) NOT NULL,
+    data_vigencia DATE NOT NULL,
+    preco DECIMAL(10, 2) NOT NULL,
+    -- Garante que não haja preços duplicados para o mesmo combustível na mesma data
+    UNIQUE (tipo_combustivel, data_vigencia)
+);
+
+COMMENT ON TABLE historico_precos_combustivel IS 'Tabela para armazenar o histórico de preços de diferentes tipos de combustíveis.';
+COMMENT ON COLUMN historico_precos_combustivel.tipo_combustivel IS 'O nome do combustível (ex: Gasolina, Diesel, Etanol).';
+COMMENT ON COLUMN historico_precos_combustivel.data_vigencia IS 'A data a partir da qual o preço se torna válido.';
+COMMENT ON COLUMN historico_precos_combustivel.preco IS 'O valor do combustível por litro.';
+
+
+-- ---------------------------------------------------------------------
+-- PASSO 2: INSERIR DADOS DE EXEMPLO NA TABELA
+-- ---------------------------------------------------------------------
+-- Inserimos alguns registros para simular um histórico de preços.
+-- O comando ON CONFLICT (tipo_combustivel, data_vigencia) DO NOTHING
+-- evita erros caso você execute este script múltiplas vezes, impedindo
+-- a inserção de dados duplicados.
+
+INSERT INTO historico_precos_combustivel (tipo_combustivel, data_vigencia, preco) VALUES
+('Gasolina', '2023-01-01', 5.50),
+('Gasolina', '2023-02-15', 5.65),
+('Gasolina', '2023-03-20', 5.75),
+('Diesel', '2023-01-01', 4.80),
+('Diesel', '2023-02-20', 4.95),
+('Etanol', '2023-01-01', 4.20),
+('Etanol', '2023-03-01', 4.35)
+ON CONFLICT (tipo_combustivel, data_vigencia) DO NOTHING;
+
+
+-- ---------------------------------------------------------------------
+-- PASSO 3: CONSULTAR O PREÇO DE UM COMBUSTÍVEL EM UMA DATA ESPECÍFICA
+-- ---------------------------------------------------------------------
+-- Esta é a consulta principal. Para encontrar o preço em uma data específica,
+-- buscamos o registro mais recente cuja data de vigência seja anterior
+-- ou igual à data desejada.
+
+-- Exemplo: Qual era o preço da 'Gasolina' em '2023-03-01'?
+-- A consulta retornará R$ 5,65, pois era o preço vigente mais recente
+-- até aquela data.
+
+SELECT
+    preco
+FROM
+    historico_precos_combustivel
+WHERE
+    tipo_combustivel = 'Gasolina' -- <-- Altere o tipo de combustível aqui
+    AND data_vigencia <= '2023-03-01' -- <-- Altere a data de consulta aqui
+ORDER BY
+    data_vigencia DESC -- Ordena para obter o mais recente primeiro
+LIMIT 1; -- Pega apenas o primeiro resultado (o preço correto)
+
+
+-- ---------------------------------------------------------------------
+-- Exemplo 2: Qual era o preço do 'Diesel' em '2023-05-10'?
+-- A consulta retornará R$ 4,95, que foi o último preço registrado.
+-- ---------------------------------------------------------------------
+
+SELECT
+    preco
+FROM
+    historico_precos_combustivel
+WHERE
+    tipo_combustivel = 'Diesel'
+    AND data_vigencia <= '2023-05-10'
+ORDER BY
+    data_vigencia DESC
+LIMIT 1;
+
+-- ======================= FIM DO SCRIPT =======================
