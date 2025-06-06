@@ -1,0 +1,87 @@
+-- Criação da tabela para registrar o estacionamento
+CREATE TABLE estacionamento (
+    id SERIAL PRIMARY KEY,
+    placa VARCHAR(10) NOT NULL,
+    data_entrada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_saida TIMESTAMP,
+    tempo_total_minutos INTEGER -- Coluna para armazenar o tempo total em minutos
+);
+
+-- Inserindo alguns veículos que estão entrando no estacionamento
+INSERT INTO estacionamento (placa) VALUES ('ABC-1234');
+INSERT INTO estacionamento (placa) VALUES ('XYZ-5678');
+INSERT INTO estacionamento (placa) VALUES ('QWE-9101');
+
+-- Simulando a saída de um veículo e calculando o tempo de permanência
+-- Para o veículo com placa 'ABC-1234'
+DO $$
+DECLARE
+    v_id INTEGER;
+    v_data_entrada TIMESTAMP;
+    v_data_saida TIMESTAMP;
+BEGIN
+    -- Encontra o registro de entrada mais recente para a placa que ainda não tem data de saída
+    SELECT id, data_entrada INTO v_id, v_data_entrada
+    FROM estacionamento
+    WHERE placa = 'ABC-1234' AND data_saida IS NULL
+    ORDER BY data_entrada DESC
+    LIMIT 1;
+
+    -- Define a data de saída como o horário atual
+    v_data_saida := CURRENT_TIMESTAMP;
+
+    -- Atualiza o registro com a data de saída e o tempo total em minutos
+    UPDATE estacionamento
+    SET
+        data_saida = v_data_saida,
+        tempo_total_minutos = EXTRACT(EPOCH FROM (v_data_saida - v_data_entrada)) / 60
+    WHERE id = v_id;
+END $$;
+
+-- Simulando a saída de outro veículo um pouco depois
+-- Para o veículo com placa 'XYZ-5678'
+DO $$
+DECLARE
+    v_id INTEGER;
+    v_data_entrada TIMESTAMP;
+    v_data_saida TIMESTAMP;
+BEGIN
+    -- Simula uma espera de alguns segundos antes de registrar a saída
+    PERFORM pg_sleep(5);
+
+    SELECT id, data_entrada INTO v_id, v_data_entrada
+    FROM estacionamento
+    WHERE placa = 'XYZ-5678' AND data_saida IS NULL
+    ORDER BY data_entrada DESC
+    LIMIT 1;
+
+    v_data_saida := CURRENT_TIMESTAMP;
+
+    UPDATE estacionamento
+    SET
+        data_saida = v_data_saida,
+        tempo_total_minutos = EXTRACT(EPOCH FROM (v_data_saida - v_data_entrada)) / 60
+    WHERE id = v_id;
+END $$;
+
+
+-- Consulta para visualizar todos os registros e o tempo de permanência calculado em minutos
+-- para os veículos que já saíram.
+SELECT
+    placa,
+    TO_CHAR(data_entrada, 'DD/MM/YYYY HH24:MI:SS') AS entrada,
+    TO_CHAR(data_saida, 'DD/MM/YYYY HH24:MI:SS') AS saida,
+    tempo_total_minutos || ' minutos' AS tempo_de_permanencia
+FROM
+    estacionamento
+WHERE
+    data_saida IS NOT NULL;
+
+-- Consulta para ver os veículos que ainda estão no estacionamento
+SELECT
+    placa,
+    TO_CHAR(data_entrada, 'DD/MM/YYYY HH24:MI:SS') AS entrada
+FROM
+    estacionamento
+WHERE
+    data
